@@ -19,8 +19,11 @@ This project introduces an innovative approach for enhancing cell detection in m
 
 ## Figures
 
+## Figures
+
 ### Figure 1
-![Figure 1](https://github.com/yourusername/yourprojectname/blob/main/manuscript/images/1.png?raw=true "Figure 1 Description")
+![Figure 1](https://github.com/idso-fa1-pathology/semi-supervised-cell-detection/blob/main/manuscript/images/1.png?raw=true "Figure 1 Description")
+
 
 ### Figure 2
 ![Figure 2](https://github.com/yourusername/yourprojectname/blob/main/manuscript/images/2.png?raw=true "Figure 2 Description")
