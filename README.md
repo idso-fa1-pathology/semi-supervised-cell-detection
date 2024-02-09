@@ -32,6 +32,39 @@ This project introduces an innovative approach for enhancing cell detection in m
 ![Figure 4](https://github.com/idso-fa1-pathology/semi-supervised-cell-detection/blob/main/manuscript/images/4.png?raw=true "Figure 3 Description")
 
 
+# Advanced Multiplex Immunofluorescence Cell Detection using Semi-Supervised Learning
+
+## Overview
+This project develops a novel approach for cell detection in multiplex immunofluorescence (mIF) imaging, leveraging semi-supervised learning with pseudo-labeling to address the challenge of limited and unevenly distributed annotations. The method significantly enhances the accuracy and comprehensiveness of cell detection across different cancer types, employing YOLOv8s for its superior performance.
+
+## Manuscript Highlights
+- **Title**: Advancing Multiplex Immunofluorescence Imaging Cell Detection using Semi-Supervised Learning with Pseudo-Labeling
+- **Authors**: Yasin Shokrollahi et al.
+- **Institution**: The University of Texas MD Anderson Cancer Center
+- **Abstract**: The paper presents a streamlined semi-supervised approach that effectively utilizes partially pathologist-annotated single-cell data in multiplexed images, achieving remarkable precision, recall, and F1 scores across various cancer types.
+
+## Figures Explanation
+- **Figure 1**: Demonstrates the process of generating pseudo-labels and employing a semi-supervised learning approach for cell detection. This includes immune cells (CD45+), epithelial and cancer cells (panCK+), and others (CD45-panCK-), highlighting the methodology's ability to enrich the dataset with high-quality pseudo labels.
+  
+  ![Figure 1](manuscript/images/1.png)
+
+- **Figure 2**: Showcases the pre-processing and annotation strategy, illustrating the patch extraction method and the dataset's augmentation to enhance model training and performance validation across different cancer types.
+
+  ![Figure 2](manuscript/images/2.png)
+
+- **Figure 3**: Provides a comparison of cell counts between pathologist annotations and YOLOv8s predictions, validating the model's accuracy in detecting various cell types.
+
+  ![Figure 3](manuscript/images/3.png)
+
+- **Figure 4**: Compares the average number of annotations for CD45, panCK, and Others between pathologists and YOLOv8s across five distinct cancer types, showcasing the algorithm's consistency and reliability in annotation.
+
+  ![Figure 4](manuscript/images/4.png)
+
+## Installation
+```bash
+git clone https://github.com/idso-fa1-pathology/semi-supervised-cell-detection.git
+cd semi-supervised-cell-detection
+pip install -r requirements.txt
 
 
 
