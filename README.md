@@ -16,9 +16,6 @@ This project introduces an innovative approach for enhancing cell detection in m
 - **yolo_to_coco_fasterrcnn.ipynb**: Converts YOLO annotations to the COCO format, facilitating compatibility with Faster R-CNN.
 - **yolov5.ipynb**, **yolov8s.ipynb**: Notebooks detailing the implementation and tuning of YOLOv5 and YOLOv8s models for cell detection, highlighting model-specific adjustments and optimizations.
 
-
-## Figures
-
 ## Figures
 
 ### Figure 1
@@ -26,13 +23,13 @@ This project introduces an innovative approach for enhancing cell detection in m
 
 
 ### Figure 2
-![Figure 2](https://github.com/yourusername/yourprojectname/blob/main/manuscript/images/2.png?raw=true "Figure 2 Description")
+![Figure 2](https://github.com/idso-fa1-pathology/semi-supervised-cell-detection/blob/main/manuscript/images/2.png?raw=true "Figure 2 Description")
 
 ### Figure 3
-![Figure 3](https://github.com/yourusername/yourprojectname/blob/main/manuscript/images/3.png?raw=true "Figure 3 Description")
+![Figure 3](https://github.com/idso-fa1-pathology/semi-supervised-cell-detection/blob/main/manuscript/images/3.png?raw=true "Figure 3 Description")
 
 ### Figure 4
-![Figure 4](https://github.com/yourusername/yourprojectname/blob/main/manuscript/images/4.png?raw=true "Figure 4 Description")
+![Figure 4](https://github.com/idso-fa1-pathology/semi-supervised-cell-detection/blob/main/manuscript/images/4.png?raw=true "Figure 3 Description")
 
 
 
