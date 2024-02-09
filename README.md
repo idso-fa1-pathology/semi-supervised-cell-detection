@@ -11,6 +11,4 @@ This project introduces a breakthrough approach for enhancing cell detection in 
 
 ## Installation
 ```bash
-git clone https://github.com/yourusername/yourprojectname.git
-cd yourprojectname
-pip install -r requirements.txt
+
