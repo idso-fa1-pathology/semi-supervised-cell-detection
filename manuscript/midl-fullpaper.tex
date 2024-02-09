@@ -1,0 +1,193 @@
+\documentclass{midl} % Include author names
+% \documentclass[anon]{midl} % Anonymized submission
+
+% The following packages will be automatically loaded:
+% jmlr, amsmath, amssymb, natbib, graphicx, url, algorithm2e
+% ifoddpage, relsize and probably more
+% make sure they are installed with your latex distribution
+
+\usepackage{mwe} % to get dummy images
+\usepackage{booktabs}
+\jmlrvolume{-- Under Review}
+\jmlryear{2024}
+\jmlrworkshop{Full Paper -- MIDL 2024 submission}
+\editors{Under Review for MIDL 2024}
+
+\title[Semi-Supervised Cell Detection in Immunofluorescence Imaging]{Advancing Multiplex Immunofluorescence Imaging Cell Detection using Semi-Supervised Learning with Pseudo-Labeling}
+
+\midlauthor{\Name{Yasin Shokrollahi\nametag{$^{1}$}} \Email{yshokrollahi@mdanderson.org}\\
+    \Name{Karina Pinao Gonzales\nametag{$^{2}$}} \Email{kbpinao@mdanderson.org}\\
+    \Name{Maria Esther Salvatierra\nametag{$^{2}$}} \Email{mesalvatierra@mdanderson.org}\\
+    \Name{Simon P. Castillo\nametag{$^{1,2}$}} \Email{spcastillo@mdanderson.org}\\
+    \Name{Tanishq Gautam\nametag{$^{1}$}} \Email{tgautam@mdanderson.org}\\
+    \Name{Pingjun Chen\nametag{$^{1}$}} \Email{pchen6@mdanderson.org}\\
+    \Name{B. Leticia Rodriguez\nametag{$^{1}$}} \Email{blrodriguez@mdanderson.org}\\
+    \Name{Sara Ranjbar\nametag{$^{1}$}} \Email{sranjbar@mdanderson.org}\\
+    \Name{Patient Mosaic Team\nametag{$^{}$}}\thanks{Full list of "Patient Mosaic Team" members is detailed in the Appendix Section~\ref{sec:appendix_team_members}.}			\Email{sprabhakaran@mdanderson.org}\\
+    \Name{Luisa M. Solis Soto\nametag{$^{2}$}} \Email{lmsolis@mdanderson.org}\\
+    \Name{Yinyin Yuan\midljointauthortext{Joint corresponding author}\nametag{$^{1,2}$}} \Email{yyuan6@mdanderson.org}\\
+    \Name{Xiaoxi Pan\protect\footnotemark[2]\nametag{$^{1,2}$}} \Email{xpan7@mdanderson.org}\\
+    \addr $^{1}$ Institute for Data Science in Oncology, FA1-Quantitative Pathology and Medical Imaging, The University of Texas MD Anderson Cancer Center, Houston, TX.\\
+    \addr $^{2}$ Department of Translational Molecular Pathology, Division of Pathology and Laboratory Medicine, The University of Texas MD Anderson Cancer Center, Houston, TX.
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Accurate cell detection in multiplex immunofluorescence (mIF) is crucial for quantifying and analyzing the spatial distribution of complex cellular patterns within the tumor microenvironment. Despite its importance, cell detection in mIF is challenging, primarily due to difficulties obtaining comprehensive annotations. To address the challenge of limited and unevenly distributed annotations, we introduced a streamlined semi-supervised approach that effectively leveraged partially pathologist-annotated single-cell data in multiplexed images across different cancer types. We assessed three leading object detection models, Faster R-CNN, YOLOv5s, and YOLOv8s, with partially annotated data, selecting YOLOv8s for optimal performance. This model was subsequently used to generate pseudo labels, which enriched our dataset by adding more detected labels than the original partially annotated data, thus increasing its generalization and the comprehensiveness of cell detection. By fine-tuning the detector on the original dataset and the generated pseudo labels, we tested the refined model on five distinct cancer types using fully annotated data by pathologists. Our model achieved an average precision of 90.42\%, recall of 85.09\%, and an F1 Score of 84.75\%, underscoring our semi-supervised model's robustness and effectiveness. This study contributes to analyzing multiplexed images from different cancer types at cellular resolution by introducing sophisticated object detection methodologies and setting a novel approach to effectively navigate the constraints of limited annotated data with semi-supervised learning.
+\end{abstract}
+
+\begin{keywords}
+Semi-supervised Learning, Cell Detection, Computational Pathology, Multiplex Imaging
+\end{keywords}
+
+
+\section{Introduction}
+Integrating deep learning into medical imaging and pathology has significantly led to advancements in disease diagnosis and treatment strategies. In particular, the practice of knowledge distillation and the development of advanced object detection methodologies have been pivotal in enhancing the precision of cell detection, a critical aspect of pathology in tasks such as measuring immune infiltration \cite{Hinton:arXiv:2015:Distilling, Smith2018, Johnson2020}. Despite these advancements, the field still faces challenges concerning the limited availability of comprehensively annotated datasets, heterogeneity across cancer types, and the intricate task of cell segmentation and classification in histology images. Several innovative approaches have been introduced to address the need for improved object detection methods. The study by Abbasi et al. proposed enhancing YOLO’s performance on partially labeled datasets by creating pseudo-labels for unlabeled instances, significantly improving generalization performance \cite{abbasi2020self}. Similarly, the Co-mining approach adopted a self-supervised learning technique using a Siamese network for object detection in sparsely annotated settings \cite{wang2021co}. Niemeijer et al. extended this concept by proposing a method for fusing datasets with partially overlapping classes, employing pseudo-labeling with uncertainty quantification to enhance model robustness \cite{niemeijer2023approach}. The necessity for efficient data annotation has also led to the development of weakly supervised learning frameworks. Qu et al. introduced a novel framework for deep nuclei segmentation using partial points annotation, significantly reducing the annotation workload and enabling efficient large-scale medical image analysis \cite{qu2020weakly}. Complementing this, Greenwald et al. developed Mesmer, a deep learning algorithm for whole-cell segmentation in tissue images, which achieved human-level performance and addressed the critical challenge of cell segmentation in tissue imaging \cite{greenwald2022whole}.
+
+In the realm of cell classification, groundbreaking advancements have been made by Amitay et al. with the development of CellSighter, a neural network demonstrating over 80\% accuracy in cell classification from multiplexed images \cite{amitay2023cellsighter}. Similarly, Bortolomeazzi et al. introduced SIMPLI, a versatile tool for multiplexed image analysis, aligning perfectly with objectives to process complex histology images for accurate cancer cell detection \cite{bortolomeazzi2022simpli}. However, these advancements have limitations. The challenge of handling long-tailed distributions in datasets, a common issue in cancer cell detection due to the diverse and imbalanced nature of histology datasets, was addressed by Zang et al. through the development of CascadeMatch \cite{zang2023semi}. Additionally, the need for efficient utilization of limited labeled data in medical image analysis led to the development of an end-to-end framework by Xu et al., harnessing unlabeled data effectively \cite{xu2021end}. Significant contributions have also been made to detect and classify nuclei in histology images. Hover-Net, introduced by Graham et al., uniquely predicts distances of nuclear pixels to their centers, enabling accurate segmentation and classifies each nucleus type, integrating segmentation and classification tasks \cite{graham2019hover}. Moreover, Schmidt et al. presented StarDist, a novel method for cell detection in microscopy images, utilizing star-convex polygons for segmentation and effectively handling crowded cellular environments \cite{schmidt2018cell}. Previous research has pushed medical imaging forward, yet it often needs help when dealing with partially labeled datasets, particularly in mIF imaging. Addressing these challenges is crucial as mIF is a powerful tool for the characterization of tumor microenvironment \cite{lee2020multiplex} and is instrumental for tasks associated with the identification and quantification of biomarkers with predictive and prognostic value \cite{rashid2019highly}.
+
+Tackling the challenges of cell detection in mIF, our study underscores the critical role of precise quantification of complex cellular patterns in predicting immune cells within the tumor microenvironment—immunotherapeutic responses. Confronted with the challenge of sparse and unevenly distributed annotations, we have devised a semi-supervised approach that adeptly utilizes partially annotated data by pathologists. We initially trained three detectors on partially annotated datasets and selected the best one based on the performance. Our approach began with training this top-performing detector using partial annotations. Next, we used pseudo labels produced by this model to train a new detector. This innovative approach addresses the time-consuming burden of human labeling and leverages the strengths of semi-supervised learning to enhance the model's performance. Furthermore, we comprehensively compared our method's performance across different portions of partial annotations. To finalize the validation of our pipeline, we performed evaluations on five specific cancer types: Papillary Urothelial Carcinoma (PUC), Penile Squamous Cell Carcinoma (PSCC), Urothelial Carcinoma (UC), Cholangiocarcinoma (CC), and Rectal Squamous Cell Carcinoma (RSCC), all fully annotated by pathologists. It further highlights our approach's robustness, effectiveness, and generalization, establishing a new benchmark in medical image analysis and pathology.
+
+\section{Methodology}
+\label{sec:methodology}
+\subsection{Methodology Overview}
+To generate fully annotated images, this study delves deeply into medical image analysis, focusing on evaluating the performance of three leading object detection models: Faster R-CNN \cite{ren2015faster}, YOLOv5s \cite{yolov5}, and YOLOv8s \cite{ultralytics2023}. These models are assessed for their proficiency in detecting and classifying cells within mIF images, a process integral to advancing the precision and speed of object detection, pivotal factors in early and accurate cancer diagnosis. Initially, all detectors were trained on partially annotated datasets. Then, the best-performing detector, as determined by the comparative analysis, was selected to generate pseudo labels (additional labels generated by the detector) in an iterative training loop. These pseudo labels were then used to retrain a new detector, enhancing the model’s learning process and improving its detection capabilities. Figure~\ref{fig:1} provides a schematic overview for generating pseudo-labels and employing a semi-supervised learning approach for the detection of cells, including immune cells (CD45+), epithelial and cancer cells (panCK+), and others (CD45-panCK-). 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{images/1.png}
+\caption{Schematic for generating pseudo-labels and utilizing a semi-supervised learning approach for the detection of cells, including immune cells (CD45+), epithelial and cancer cells (panCK+), and others (CD45-panCK-).}
+\label{fig:1}
+\end{figure}
+\vspace{-1em}
+
+\subsection{Pre-processing and Annotation Strategy for Training}
+This study employs an mIF dataset of histology images from papillary urothelial carcinoma tumors of 10 different patients, obtained through our Patient Mosaic initiative following IRB approval, and was generated in line with the GeoMx DSP manufacturer's recommendations (nanoString). Recognizing the labor-intensive nature of annotating large histology images, the study employed a partial annotation strategy. Here,  pathologists annotated approximately 10\% of the images' cells, finding a balance between manual annotation efforts and the need for accurately labeled data for model training. To manage the extensive size of these images, a patch extraction method was applied, creating non-overlapping patches of 640x640 pixels that retain essential cellular features critical for accurate detection (Figure~\ref{fig:2}). The dataset was further enriched through data augmentation techniques such as flipping, zooming, rotating, and blurring, expanding the dataset to 51,924 patches, of which 70\%, 15\%, and 15\% were used for training, validation, and testing, respectively. The 15\% testing portion was carefully chosen from different samples and did not include any augmented images to ensure the model was tested on completely new data. The robustness and efficacy of the models were tested on fully annotated datasets. These datasets were derived from five distinct cancer types, four of which are unseen types during the training process. For each case, four patches of images were fully annotated by two independent pathologists, ensuring high data accuracy. This step was crucial in confirming the models' ability to generalize across different cancer types.
+
+\subsection{Model Training, Pseudo Label Generation, and Validation}
+The pseudo labels generation phase involved pretraining the YOLOv8s model with partially annotated data, guided by semi-supervised object detection strategies to effectively utilize a limited number of labeled images \cite{gao2019note, jeong2019consistency}. This approach helps control overfitting, a challenge in models trained on sparsely annotated datasets. To further enhance our model's performance and prevent overfitting, we incorporated dropout with a rate of 0.3 during the training process. Moreover, the training was conducted for a shorter span, capped at 50 epochs, to avoid excessive fitting to the partial dataset. This was followed by the generation of pseudo labels, a process inspired by methods such as CSD \cite{jeong2019consistency}, which enforce consistency constraints to maximize the utility of unlabeled data. We evaluated the generated pseudo labels through a designed loop by comparing them with the ground truth. This ensured the detection of more true positives and the generation of reliable pseudo labels. After the pretraining phase with the partial dataset from papillary urothelial carcinoma, we merged the original labels with the pseudo labels. This enriched dataset was then utilized to retrain the YOLOv8s model. We also analyzed the model's performance at different annotation levels during this retraining phase. Specifically, we considered 100\% of the partial annotations for each class, including CD45 with 140K, panCK with 200K, and other classes with 120K after augmentation. Subsequently, we experimented with excluding 50\% and 75\% of the annotations for each class to assess the model's performance under varying levels of annotation scarcity (results presented in the Appendix Section~\ref{sec:annotation_impact}). Furthermore, the study incorporated additional fully annotated datasets of five cancer types for final validation, enriching the robustness and adaptability of the models to different cancer cell appearances and histology conditions, as shown in Figure~\ref{fig:2}. Our primary computational resource was a Linux server equipped with dual NVIDIA GeForce RTX 4090 GPUs, 256GB of random access memory, and a 32-core CPU, ensuring optimal performance and efficiency.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{images/2.png}
+\caption{Overview of the dataset showcasing cell morphology, the number of images and annotations per class after augmentation, and fully annotated cancer types for final testing.}
+\label{fig:2}
+\end{figure}
+\vspace{-1em}
+
+\section{Results}
+\subsection{Initial Phase: Selection of Best Object Detection Model}
+The initial phase of this study involved training three networks (Faster RCNN, YOLOv5s, and YOLOv8s) on a partially annotated dataset. This section encapsulates the comparative performance analysis of various object detection networks, specifically focusing on their capabilities in identifying distinct cell types. After the initial phase, we evaluated the performance of these models, ultimately selecting YOLOv8s for further processes based on its optimal performance. Table~\ref{tab:comparison_results} provides a detailed comparison of the object detection models, showcasing the better performance of YOLOv8s in accurately detecting different types of cancer cells. The table presents key measures of model performance recall and mAP50, which are central to our evaluation criteria. YOLOv8s achieved excellent recall, and mAP50 scores for all types of cells, and its recall scores were consistently high, ranging from 0.97 to 0.98. Faster R-CNN showed lower performance, with its recall and mAP50 scores varying more widely across different cell types. YOLOv5s, however, performed similarly to YOLOv8s, with high mAP50 scores and competitive recall scores. These results highlight YOLOv8s’s superior ability to detect cells, marking a significant improvement in accuracy and reliability compared to other models, which can be attributed to its architectural advancements \cite{ultralytics2023} that enhance precise and reliable detection, crucial for the accurate identification of cells in histology images.
+
+\begin{table}[!htbp]
+\centering
+\caption{Performance comparison of object detection networks across cell types, trained on an initially partially annotated dataset with 250 epochs.}%
+  \begin{tabular}{l|ccc|ccc|ccc}
+  \toprule
+  \bfseries Metric & \multicolumn{3}{c|}{\bfseries Faster RCNN} & \multicolumn{3}{c|}{\bfseries YOLOv5s} & \multicolumn{3}{c}{\bfseries YOLOv8s}\\
+  & {\small \bfseries CD45} & {\small \bfseries panCK} & {\small \bfseries Others} & {\small \bfseries CD45} & {\small \bfseries panCK} & {\small \bfseries Others} & {\small \bfseries CD45} & {\small \bfseries panCK} & {\small \bfseries Others}\\
+  Recall & 0.850 & 0.824 & 0.798 & 0.962 & 0.969 & 0.966 & 0.971 & 0.975 & 0.987\\
+  mAP50 & 0.846 & 0.815 & 0.791 & 0.983 & 0.985 & 0.984 & 0.985 & 0.993 & 0.988 \\
+  \bottomrule
+  \end{tabular}
+\label{tab:comparison_results}% 
+\end{table}
+
+\subsection{Final Phase: Pseudo Label Integration and Validation on Fully Annotated Dataset}
+In the final phase, we enhanced YOLOv8s by integrating pseudo labels with the original dataset, which involves semi-supervised learning and iterative refinement. This strategy significantly improved the model's ability to detect cells. In this validation study, we used four patches of size 640x640 pixels for each cancer type, which have been fully annotated by two pathologists. Figure~\ref{fig:cc_comparison} exemplifies four annotated patches from the PSCC, UC, CC, and RSCC, illustrating the comparison of the cell counts between the pathologists' annotations and the predictions made by YOLOv8s. This detailed annotation provided a robust basis for evaluating the performance of the YOLOv8s model. The comprehensive validation of the YOLOv8s model across various cancer types is presented in Table~\ref{tab:cancer_validation}, underscoring the model's robustness and adaptability. The model was tested against five cancer types: PUC, PSCC, UC, CC, and RSCC. YOLOv8s demonstrated high precision, recall, and F1 Scores across all cancer types, affirming its competence in handling diverse histopathological samples.
+The model showed high precision and recall rates in most categories, with CD45 cells in RSCC and CC demonstrating perfect recall (100\%). In the case of PSCC, there were no CD45 cells present in the patches examined, as indicated by the dashes in the table. The model also performed strongly in panCK and other cell types, especially in PSCC and PUC, showing high precision and recall. These results underscore the model's robustness and accuracy in identifying various cell types across cancer samples. Additional details regarding the average number of annotations per class for these five types of cancers are provided in the Appendix, Section~\ref{sec:average_comparison}.
+
+\begin{figure}[!htbp]
+%\setlength{\abovecaptionskip}{2pt} 
+%\setlength{\belowcaptionskip}{2pt}
+\centering
+\includegraphics[width=0.8\linewidth]{images/3.png}
+\caption{Comparison of cell counts between pathologist annotations and YOLOv8s predictions. The top images show pathologists fully annotated the patches, while the bottom images display YOLOv8's detection. Red dots represent CD45 cells, cyan dots represent panCK cells, and magenta dots indicate Others cell type. The numbers at the bottom denote the count of each cell type.}
+\label{fig:cc_comparison}
+\end{figure}
+%\vspace{-1em}
+
+\section{Discussion}
+\subsection{Interpretation of Results}
+This study addressed the challenge of partially annotated mIF images through a semi-supervised deep learning approach, focusing on detecting three cell classes: CD45, panCK, and Others. Cell detection in mIF is necessary to quantify and analyze the intricate spatial distribution of cellular patterns within the tumor microenvironment, which is crucial for understanding immunological studies in oncology. The model's performance reflected in the high precision, recall, and F1 scores across various cancer and cell types, attests to its robustness and accuracy. Detecting cell types such as CD45, panCK, and Others indicates the model's intricate understanding of morphological characteristics, a crucial factor in the precise identification and classification of cancer cells.
+The model's validation on fully annotated patches across five cancer types, despite being trained on a dataset with partial annotations (approximately 10\% of full annotations), not only underscores its capability to detect the majority of cells within the patches but also demonstrates its versatility in addressing different cancer types. This adaptability and reliability are evident in the consistent performance across various histology conditions, ranging from Papillary Urothelial Carcinoma to Rectal Squamous Cell Carcinoma. The model's adeptness in various contexts reflects findings similar to those of Amitay et al., who underscored the significance of accurate cell classification in computational pathology \cite{amitay2023cellsighter}. Furthermore, the ability of YOLOv8s to deliver high performance, even with a limited set of annotations, indicates its robust learning mechanism and capacity to generalize from sparse data. This characteristic is particularly valuable considering the resource-intensive nature of manual annotations in medical imaging; a challenge also acknowledged in the work of Qu et al. \cite{qu2020weakly}. This robustness and adaptability make our model a promising tool in digital pathology, opening new avenues for efficient and accurate cancer cell detection and classification.
+
+\begin{table}[!htbp]
+\setlength{\abovecaptionskip}{2pt} 
+\centering
+\caption{Performance of YOLOv8s on five Cancer Types. The cancer types are indicated as PUC (Papillary Urothelial Carcinoma), PSCC (Penile Squamous Cell Carcinoma), UC (Urothelial Carcinoma), CC (Cholangiocarcinoma), RSCC (Rectal Squamous Cell Carcinoma).}%
+  \begin{tabular}{l|ccc|ccc|ccc}
+  \toprule
+  \bfseries Type & \multicolumn{3}{c|}{\bfseries CD45} & \multicolumn{3}{c|}{\bfseries panCK} & \multicolumn{3}{c}{\bfseries Others}\\
+  & \bfseries P & \bfseries R & \bfseries F1 & \bfseries P & \bfseries R & \bfseries F1 & \bfseries P & \bfseries R & \bfseries F1\\
+  PUC & 1.000 & 0.881 & 0.937 & 1.000 & 0.771 & 0.871 & 1.000 & 0.886 & 0.939\\
+  PSCC & - & - & - & 1.000 & 0.891 & 0.943 & 0.386 & 1.000 & 0.557\\
+  UC & 1.000 & 0.921 & 0.959 & 1.000 & 0.734 & 0.847 & 0.452 & 1.000 & 0.623\\
+  CC & 0.880 & 1.000 & 0.936 & 1.000 & 0.751 & 0.858 & 1.000 & 0.719 & 0.837\\
+  RSCC & 0.941 & 1.000 & 0.969 & 1.000 & 0.857 & 0.923 & 1.000 & 0.500 & 0.667\\
+  \bottomrule
+  \end{tabular}
+  \label{tab:cancer_validation}
+\end{table}
+\vspace{-1em}
+
+\subsection{Limitations, Future Work, and Broader Implications}
+While the study presents promising results, certain limitations and opportunities for future research are apparent. The observed decrease in model performance with reduced annotations, especially below the 25\% threshold, underscores the need for an optimal balance between computational efficiency and the availability of annotated data. Future endeavors could focus on refining the model's performance under sparse annotations, potentially employing advanced semi-supervised learning techniques, as highlighted by Xu et al. \cite{xu2021end}. Furthermore, extending the model's detection capabilities to encompass a broader range of cell types and pathological conditions could offer a more holistic tool for pathologists, possibly integrating with comprehensive analysis software like SIMPLI, as suggested by Bortolomeazzi et al. \cite{bortolomeazzi2022simpli}. In Table~\ref{tab:cancer_validation}, despite its promising performance, the YOLOv8s model exhibits limitations in marker-specific detection accuracy, potential overfitting for certain categories, and variability in generalization across different cancer types, underscoring the need for further refinement and comprehensive validation. Also, the absence of CD45 marker values in PSCC samples due to the non-availability of CD45 in PSCC patches points to a limitation in evaluating the model's capability to detect the CD45 marker in PSCC, reflecting a need for more comprehensive data to validate the model's performance for this specific marker.
+
+In summary, this research contributes to the field of mIF image analysis by introducing an advanced semi-supervised learning model for cell detection, paving the way for future explorations and practical implementations. By navigating through the current limitations and exploring novel avenues, the full potential of YOLOv8s and similar models can be harnessed, heralding a new era in healthcare diagnostics.
+
+
+
+
+
+% Acknowledgments---Will not appear in anonymized version
+\midlacknowledgments{We thank members of the Yuan lab for the critical discussion.   We thank Dr’s M. Neus Bota and Sabitha Prabhakaran for their assistance with Patient Mosaic. This work was supported by the MD Anderson Patient Mosaic™ Project at The University of Texas MD Anderson Cancer Center. Patient Mosaic is supported by generous philanthropic contributions from the Albert and Margaret Alkek Foundation, among others. This project is funded by Lyda Hill Philanthropies.}
+
+
+
+\bibliography{midl-samplebibliography}
+
+\appendix
+
+\section{Annotation Impact: Analyzing Model Performance at Different Annotation Levels}
+\label{sec:annotation_impact}
+Given the superior performance of YOLOv8s in detecting cells, as evidenced in Table~\ref{tab:annotation_comparison}, we further investigated its robustness under varying annotation scenarios. Specifically, we evaluated the model’s performance when trained with different proportions of annotated data: 100\%, 50\%, and 25\%. The results of this experiment, detailed in Table 2, provide insight into the minimum level of annotations required to maintain acceptable detection results. As presented in Table~\ref{tab:annotation_comparison}, YOLOv8s maintain respectable performance metrics with a full annotation set (100\%). However, a notable decrease in precision, recall, and mAP50 is observed as the level of annotations is reduced. With 50\% annotations, the model achieves a precision of 0.721 and a recall of 0.743, alongside a mAP50 of 0.797, indicating a moderate decline in performance. The impact is more noticeable at 25\% annotations, where precision drops to 0.193, recall to 0.515, and mAP50 to 0.182, suggesting a significant compromise in the model’s detection capabilities. It is important to note that our strategy for reducing annotations was methodical. We ensured an even distribution of annotations across different cell types rather than removing them randomly. This approach was intended to maintain a balanced representation of each cell type in the training data. These findings highlight the importance of enough annotations for training robust deep-learning models like YOLOv8s. While the model demonstrates a certain degree of tolerance to reduced annotations, ensuring a higher percentage of annotated data is imperative for optimal performance, especially in the critical domain of cancer cell detection.
+
+\begin{table}[htbp]
+\floatconts
+  {tab:annotation_comparison}%
+  {\caption{YOLOv8s performance with varying annotation levels (250 epochs.)}}%
+  {\begin{tabular}{lccc}
+  \bfseries Metric & \bfseries 100\% Annotations & \bfseries 50\% Annotations & \bfseries 25\% Annotations\\
+  Precision & 0.986 & 0.721 & 0.193\\
+  Recall & 0.967 & 0.743 & 0.515\\
+  mAP50 & 0.989 & 0.797 & 0.182
+  \end{tabular}}
+\end{table}
+
+
+
+\section{Average Annotation Comparison Between Pathologists and YOLOv8s}
+\label{sec:average_comparison}
+
+Figure~\ref{fig:average_comparison} illustrates the average number of annotations divided into CD45, panCK, and Others identified by pathologists and the YOLOv8s algorithm in five cancer types.
+The chart shows that pathologists annotate panCK markers more frequently than YOLOv8s in all cancer types, with a particularly high average in RSCC and PSCC. In contrast, for CD45, pathologists and YOLOv8s have a lower and closely matched average number of annotations. The Others cells show a variable pattern, with pathologists generally identifying more annotations except in CC, where YOLOv8s has a higher count. This visualization represents the comparison between pathologists' manual annotations and automated annotations by the YOLOv8s algorithm, emphasizing the differences and potential areas for algorithmic improvement or training.
+
+\begin{figure}[htbp]
+\floatconts
+  {fig:average_comparison}
+  {\caption{Average annotation comparison between pathologists and YOLOv8s for CD45, panCK, and Others in 5 distinct cancers type.}}
+  {\includegraphics[width=1\linewidth]{images/4.png}}
+\end{figure}
+
+
+\section{Patient Mosaic Team Members}
+\label{sec:appendix_team_members}
+
+For the review process, the names of individuals in the Patient Mosaic Team have been omitted.
+
+The following individuals are members of the Patient Mosaic Team: Nadim J Ajami, Azad Ali, Franklin Alvarez, Brittany Alverez, Bianca Amador, Surosh Avandsalehi, Claudia Alvarez Bedoya, Katrice Bogan, Elena Bogantenkova, Elizabeth Bonojo, Maria Neus Bota-Rabassedas, Elizabeth M Burton, Noble Cadle, Vanessa Castro, Chi-Wan Chow, Randy Aaron Chu, Candace Cunningham, Carrie Daniel-MacDougall, Nana Kouangoua Diane C, Mary Domask, Sheila Duncan, Andrew Futreal, Vivian Gabisi, Jessica Gallegos, Andrea Galvan, Ana Garcia, Jose Garcia, Celia Garcia-Prieto, Christopher Gibbons, Jonathan Benjamin Gill, Dominic Guajardo, Curtis Gumbs, Kristin J Hargraves, Tim Heffernan, Joshua Hein, Sharia Hernandez, Charlotte Hillegass, Yasmine M Hoballah, Theresa Honey, Chacha Horombe, Habibul Islam, Stacy Jackson, Jeena Jacob, Akshaya Jadhav, Robert Jenq, Weiguo Jian, Juliet Joy, Isha Khanduri, Walter Kinyua, Laura Klein, Mark Knafl, Larisa Kostousov, Ying-Wei Kuo, Wenhua Lang, Barrett Craig Lawson, Alexander Lazar, Jack Lee, Erma Levy, XiQi 'Cece' Li, Latasha D Little, Yang Liu, Yan Long, Vielka Lopez, Wei Lu, Sandra Lugo, Aaliyah Maldonado, Jared Malke, Asri Margono, Dipen Maheshbhai Maru, Grace Mathew, Brian McKinley, Jennifer Leigh McQuade, Courtney McRuffin, Gertrude Mendoza, Christopher Miller, Raymond Montoya, Francisco Motemayor, Theresa Nguyen, Heather Perez, Juan Posadas Ruiz, Sabitha Prabhakaran, Mallory Psenda, Gabriela Raso, Mike Roth, Pranoti Sahasrobhojane, Amber Savant, Keri L Schadler, Alejandra Serrano, Kenna R Shaw, Julie M Simon, Elizabeth Sirmans, Luisa Maren Solis Soto, Xingzhi 'Henry' Song, Meghan Stennis, Huandong 'Howard' Sun, Maria Chang Swartz, Marialeska Tariba-Edick, Christopher Vellano, Angela Walker, Ignacio Ivan Wistuba, Scott Eric Woodman, DeArtura Young, Jianhua 'John' Zhang, Haifeng Zhu, Hui 'Helen' Zhu, Olga Bat, Shadarra Crosby, Ellie Freebern, Cindy Hwang, Diana Kouangoua, Yang Li, Sharon Miller, Xiaogang 'Sean' Wu.
+
+
+\end{document}
