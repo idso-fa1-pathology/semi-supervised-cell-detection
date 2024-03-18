@@ -26,7 +26,7 @@ This project develops a novel approach for cell detection in multiplex immunoflu
 ## Figures Explanation
 - **Figure 1**: Demonstrates the process of generating pseudo-labels and employing a semi-supervised learning approach for cell detection. This includes immune cells (CD45+), epithelial and cancer cells (panCK+), and others (CD45-panCK-), highlighting the methodology's ability to enrich the dataset with high-quality pseudo labels.
   
-  ![Figure 1](rebuttal/Short Title_official_revised/MIDLLatexTemplate copy/images/1.png)
+  ![Figure 1](manuscript/images/1.png)
 
 - **Figure 2**: Showcases the pre-processing and annotation strategy, illustrating the patch extraction method and the dataset's augmentation to enhance model training and performance validation across different cancer types.
 
@@ -39,6 +39,10 @@ This project develops a novel approach for cell detection in multiplex immunoflu
 - **Figure 4**: Compares the average number of annotations for CD45, panCK, and Others between pathologists and YOLOv8s across five distinct cancer types, showcasing the algorithm's consistency and reliability in annotation.
 
   ![Figure 4](manuscript/images/4.png)
+
+  - **Figure 5**: OC curves and AUC scores for CD45 (0.90), panCK (0.80), and Others (0.83), reflecting the model’s classification efficacy for three cell types. Each curve delineates the trade-off between the True Positive Rate and the False Positive Rate, offering a quantifiable accuracy measure.
+
+  ![Figure 5](manuscript/images/5.png)
 
 ## Installation
 ```bash
