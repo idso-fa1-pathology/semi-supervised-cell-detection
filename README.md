@@ -40,6 +40,10 @@ This project develops a novel approach for cell detection in multiplex immunoflu
 
   ![Figure 4](manuscript/images/4.png)
 
+  - **Figure 5**: OC curves and AUC scores for CD45 (0.90), panCK (0.80), and Others (0.83), reflecting the model’s classification efficacy for three cell types. Each curve delineates the trade-off between the True Positive Rate and the False Positive Rate, offering a quantifiable accuracy measure.
+
+  ![Figure 5](manuscript/images/5.png)
+
 ## Installation
 ```bash
 
