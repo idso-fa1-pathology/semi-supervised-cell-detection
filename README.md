@@ -11,7 +11,6 @@ This project develops a novel approach for cell detection in multiplex immunoflu
 - **Abstract**: The paper presents a streamlined semi-supervised approach that effectively utilizes partially pathologist-annotated single-cell data in multiplexed images, achieving remarkable precision, recall, and F1 scores across various cancer types.
 
 ## Project Structure
-- **manuscript/**: Contains detailed documentation of the research, including study design, methodologies, results, and conclusions. This section is crucial for anyone looking to understand the theoretical background or replicate the study.
 - **.DS_Store**: System file created by macOS to store custom attributes of a folder.
 - **.gitattributes**: Controls Git's handling of file attributes, useful for defining how diffs and merges should be performed for specific files.
 - **LICENSE**: Specifies the MIT License under which this project is distributed, outlining permissions for use, distribution, modification, etc.
