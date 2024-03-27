@@ -43,8 +43,24 @@ This project develops a novel approach for cell detection in multiplex immunoflu
 
   ![Figure 5](manuscript/images/5.png)
 
-## Installation
+## Installation Guide
+
+This guide provides step-by-step instructions for setting up the project environment and running the notebooks for advanced multiplex immunofluorescence cell detection using semi-supervised learning. The setup involves models such as YOLOv5, YOLOv8, Faster R-CNN, or state-of-the-art cell segmentation pretrained models.
+
+### Prerequisites
+
+- Python 3.8 or newer
+- Git
+- Pip (Python package manager)
+- Virtual environment (optional but recommended)
+
+### Step 1: Clone the Repository
+
+First, clone the project repository to your local machine or development environment:
+
 ```bash
+git clone <repository-url>
+cd <repository-name>
 
 
 
